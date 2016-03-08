@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:gravity="right"
+                android:text="12/45"
+                android:textColor="@android:color/darker_gray"
+                android:id="@+id/pagination"/>
+
+            <TextView
+                android:layout_below="@+id/pagination"
+                android:id="@+id/page_content"
+                android:layout_width="match_parent"
+                android:layout_height="933dp"
+                android:text="@string/test"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                android:layout_marginLeft="@dimen/reading_margin"
+                android:layout_marginRight="@dimen/reading_margin"
+                android:textSize="@dimen/reading_size"
+                android:gravity="left"/>
+
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

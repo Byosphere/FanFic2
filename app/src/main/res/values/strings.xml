@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">FanFic</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="pages">pages</string>
+    <string name="by">rédigé par </string>
+    <string name="to_read">A lire</string>
+    <string name="to_write">Rédiger</string>
+    <string name="to_explore">Explorer</string>
+    <string name="profile">Profil</string>
+    <string name="param">Paramètres</string>
+    <string name="write">En cours d\'écriture</string>
+    <string name="no_content">Vous n\'avez aucun texte à lire :(</string>
+    <string name="no_content_write">Vous n\'avez aucun texte en cours d\'écrtiture :(</string>
+    <string name="context_menu_head">Que faire ?</string>
+    <string name="context_delete">Retirer de la liste</string>
+    <string name="context_author">Voir le profil de l\'auteur</string>
+    <string name="action_search">Rechercher</string>
+    <string name="deleted">a bien été supprimé !</string>
+    <string name="writings">Vos récits</string>
+    <string name="context_download">Télécharger l\'histoire</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_internet">Vous n\'êtes pas connecté à internet ! :(</string>
+
+
+    <string name="test">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis nisi ut risus egestas lobortis et tincidunt orci. Suspendisse eget lacus sed ligula commodo euismod sed non tortor. Aenean eget est tortor. Maecenas quis hendrerit eros. Vestibulum condimentum arcu non sem ultricies tempus. Sed nec lectus molestie arcu cursus posuere quis vel urna. Nullam dapibus, lorem et aliquet dictum, lacus est pellentesque lacus, luctus condimentum metus lectus in quam. Mauris dignissim consectetur justo a vulputate. Mauris justo nunc, mollis ut vehicula sit amet, hendrerit egestas metus. Maecenas condimentum sed nulla sed viverra. Maecenas vestibulum nisi volutpat laoreet scelerisque. Nunc gravida tempor lectus sed rhoncus.
+Suspendisse feugiat odio et turpis tincidunt, et pellentesque est tristique. Morbi sollicitudin felis in euismod volutpat. Sed sollicitudin purus nisl, sed ultricies sem sodales non. Nulla at tellus non elit varius lacinia. Duis quis nulla vel dolor consequat dictum. Duis ut quam lectus. Proin et nibh tincidunt, sodales sem ac, laoreet purus. Proin porttitor, turpis at placerat ornare, ex odio lobortis purus, eget condimentum nunc risus ut mauris. Curabitur eget tortor vehicula, aliquet sapien in, luctus diam. Curabitur sollicitudin enim eget interdum varius. Nam nec magna sit amet felis tempor accumsan. Vestibulum quis sapien a libero tempus elementum. Proin sagittis libero sed purus ultrices, sit amet auctor nunc vulputate.
+Aliquam a massa erat. Nullam at vestibulum sem. Curabitur vel nunc pulvinar, elementum nibh at, maximus nunc. Vivamus egestas venenatis massa, bibendum lacinia eros porta et. Fusce non rutrum tortor. Maecenas ultricies risus facilisis molestie ultricies. Mauris non posuere dui, ac lacinia felis. Sed dignissim tristique ante ac cursus. Maecenas tempor malesuada eros vel consectetur. Fusce nec nibh rutrum, porta felis sit amet, sodales augue. Donec aliquam ullamcorper risus non facilisis.
+Donec blandit orci lectus, et finibus tellus interdum non. Etiam rhoncus nunc tortor, vitae condimentum ipsum facilisis nec. Nulla vel massa non nisl bibendum sagittis quis imperdiet velit. In hac habitasse platea dictumst. Quisque fermentum auctor mi eu bibendum. Nunc mollis volutpat metus, vel maximus ante molestie vel. Mauris in mauris sed lacus pulvinar fermentum in at sem.Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi id porttitor sapien, a hendrerit dui. Aliquam euismod congue sem id vulputate. Nam non metus et ipsum blandit luctus. Donec at lectus mauris. Sed sagittis cursus mattis. Ut vitae mi est. Praesent et magna id justo elementum ornare. Nunc varius rhoncus posuere. Nulla sit amet metus convallis, congue tortor vel, suscipit purus. Integer aliquam consequat ante ultrices hendrerit. Integer id convallis eros, maximus lobortis tortor. Donec placerat consequat ligula, et mattis quam volutpat sit amet.</string>
+    <string name="title_activity_login">Se connecter</string>
+    <string name="button_inscription">S'inscrire</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Mot de passe</string>
+    <string name="action_sign_in">Se connecter</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">Cette adresse E-mail est invalide</string>
+    <string name="error_invalid_password">Ce mot de passe est trop court</string>
+    <string name="error_incorrect_password">Le mot de passe est incorrect</string>
+    <string name="error_field_required">Ce champs est requis</string>
+    <string name="deco">Se déconnecter</string>
+
+</resources>

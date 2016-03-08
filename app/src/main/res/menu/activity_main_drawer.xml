@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_read"
+            android:icon="@drawable/ic_menu_read"
+            android:title="@string/to_read" />
+
+        <item
+            android:id="@+id/nav_write"
+            android:icon="@drawable/ic_menu_write"
+            android:title="@string/to_write" />
+
+        <item
+            android:id="@+id/nav_explore"
+            android:icon="@drawable/ic_menu_explore"
+            android:title="@string/to_explore" />
+
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_menu_profil"
+            android:title="@string/profile" />
+        <item
+            android:id="@+id/nav_param"
+            android:icon="@drawable/ic_menu_param"
+            android:title="@string/param" />
+
+        <item
+            android:id="@+id/nav_deco"
+            android:icon="@drawable/ic_menu_deco"
+            android:title="@string/deco" />
+    </group>
+
+</menu>
