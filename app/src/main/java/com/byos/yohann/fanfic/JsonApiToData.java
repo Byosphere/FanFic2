@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Yohann on 17/02/2016.
@@ -17,7 +18,7 @@ public class JsonApiToData {
 
     }
 
-    public static User loginUser(String json) {
+    public static User loginOrRegisterUser(String json) {
 
         try {
 
@@ -28,20 +29,27 @@ public class JsonApiToData {
                 User user = new User(
                         jsonUser.getInt("id"),
                         jsonUser.getString("email"),
-                        jsonUser.getString("name")
+                        jsonUser.getString("name"),
+                        new HashMap<Integer, String>()
                 );
                 Log.d("user", user.toString());
                 return user;
 
             } else {
-
-                return null;
+                String message = new JSONObject(json).getJSONArray("message").getString(0);
+                HashMap<Integer, String> hm = new HashMap<Integer, String>();
+                hm.put(User.ERROR, message);
+                User user = new User(0, null, null, hm);
+                return user;
             }
 
         } catch (Exception e) {
 
             Log.e("error", e.getMessage());
-            return null;
+            HashMap<Integer, String> hm = new HashMap<Integer, String>();
+            hm.put(User.ERROR, e.getMessage());
+            User user = new User(0, null, null, hm);
+            return user;
         }
     }
 
@@ -93,6 +101,25 @@ public class JsonApiToData {
                 "Suspendisse feugiat odio et turpis tincidunt, et pellentesque est tristique. Morbi sollicitudin felis in euismod volutpat. Sed sollicitudin purus nisl, sed ultricies sem sodales non. Nulla at tellus non elit varius lacinia. Duis quis nulla vel dolor consequat dictum. Duis ut quam lectus. Proin et nibh tincidunt, sodales sem ac, laoreet purus. Proin porttitor, turpis at placerat ornare, ex odio lobortis purus, eget condimentum nunc risus ut mauris. Curabitur eget tortor vehicula, aliquet sapien in, luctus diam. Curabitur sollicitudin enim eget interdum varius. Nam nec magna sit amet felis tempor accumsan. Vestibulum quis sapien a libero tempus elementum. Proin sagittis libero sed purus ultrices, sit amet auctor nunc vulputate" +
                 "Aliquam a massa erat. Nullam at vestibulum sem. Curabitur vel nunc pulvinar, elementum nibh at, maximus nunc. Vivamus egestas venenatis massa, bibendum lacinia eros porta et. Fusce non rutrum tortor. Maecenas ultricies risus facilisis molestie ultricies. Mauris non posuere dui, ac lacinia felis. Sed dignissim tristique ante ac cursus. Maecenas tempor malesuada eros vel consectetur. Fusce nec nibh rutrum, porta felis sit amet, sodales augue. Donec aliquam ullamcorper risus non facilisis.\n" +
                 "Donec blandit orci lectus, et finibus tellus interdum non. Etiam rhoncus nunc tortor, vitae condimentum ipsum facilisis nec. Nulla vel massa non nisl bibendum sagittis quis imperdiet velit. In hac habitasse platea dictumst. Quisque fermentum auctor mi eu bibendum. Nunc mollis volutpat metus, vel maximus ante molestie vel. Mauris in mauris sed lacus pulvinar fermentum in at sem.Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi id porttitor sapien, a hendrerit dui. Aliquam euismod congue sem id vulputate. Nam non metus et ipsum blandit luctus. Donec at lectus mauris. Sed sagittis cursus mattis. Ut vitae mi est. Praesent et magna id justo elementum ornare. Nunc varius rhoncus posuere. Nulla sit amet metus convallis, congue tortor vel, suscipit purus. Integer aliquam consequat ante ultrices hendrerit. Integer id convallis eros, maximus lobortis tortor. Donec placerat consequat ligula, et mattis quam volutpat sit amet.", 1);
+    }
+
+    public static Page getPageAt(int pageActuelle, String s) {
+
+        ArrayList<Page> listePage = new ArrayList<Page>();
+        try {
+            JSONArray tabRaw = new JSONObject(s).getJSONArray("pages");
+
+            for (int i= 0; i<tabRaw.length(); i++) {
+
+                JSONObject unePage = (JSONObject) tabRaw.get(i);
+                listePage.add(new Page(unePage.getInt("id"), unePage.getString("texte"), unePage.getInt("story_id")));
+            }
+
+        }catch (Exception e) {
+
+
+        }
+        return listePage.get(pageActuelle-1);
     }
 
 }

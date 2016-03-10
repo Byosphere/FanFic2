@@ -32,8 +32,6 @@ Suspendisse feugiat odio et turpis tincidunt, et pellentesque est tristique. Mor
 Aliquam a massa erat. Nullam at vestibulum sem. Curabitur vel nunc pulvinar, elementum nibh at, maximus nunc. Vivamus egestas venenatis massa, bibendum lacinia eros porta et. Fusce non rutrum tortor. Maecenas ultricies risus facilisis molestie ultricies. Mauris non posuere dui, ac lacinia felis. Sed dignissim tristique ante ac cursus. Maecenas tempor malesuada eros vel consectetur. Fusce nec nibh rutrum, porta felis sit amet, sodales augue. Donec aliquam ullamcorper risus non facilisis.
 Donec blandit orci lectus, et finibus tellus interdum non. Etiam rhoncus nunc tortor, vitae condimentum ipsum facilisis nec. Nulla vel massa non nisl bibendum sagittis quis imperdiet velit. In hac habitasse platea dictumst. Quisque fermentum auctor mi eu bibendum. Nunc mollis volutpat metus, vel maximus ante molestie vel. Mauris in mauris sed lacus pulvinar fermentum in at sem.Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi id porttitor sapien, a hendrerit dui. Aliquam euismod congue sem id vulputate. Nam non metus et ipsum blandit luctus. Donec at lectus mauris. Sed sagittis cursus mattis. Ut vitae mi est. Praesent et magna id justo elementum ornare. Nunc varius rhoncus posuere. Nulla sit amet metus convallis, congue tortor vel, suscipit purus. Integer aliquam consequat ante ultrices hendrerit. Integer id convallis eros, maximus lobortis tortor. Donec placerat consequat ligula, et mattis quam volutpat sit amet.</string>
     <string name="title_activity_login">Se connecter</string>
-    <string name="button_inscription">S'inscrire</string>
-
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Mot de passe</string>
@@ -44,5 +42,17 @@ Donec blandit orci lectus, et finibus tellus interdum non. Etiam rhoncus nunc to
     <string name="error_incorrect_password">Le mot de passe est incorrect</string>
     <string name="error_field_required">Ce champs est requis</string>
     <string name="deco">Se déconnecter</string>
+    <string name="subscribe">S\'inscrire</string>
+    <string name="error_different_passwords">Les mots de passes sont différents</string>
+    <string name="error_invalid_name">Le nom doit comporter au moins 5 caractères</string>
+    <string name="register_success">Inscription réussie !</string>
+    <string name="confirm_password">Confirmer le mot de passe</string>
+    <string name="pseudo">Pseudo</string>
+    <string name="title_activity_register">Inscription</string>
+    <string name="error_parsing">Une erreur est survenue, réessayez plus tard</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 </resources>

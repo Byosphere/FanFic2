@@ -3,21 +3,35 @@ package com.byos.yohann.fanfic;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.app.LoaderManager.LoaderCallbacks;
 
+import android.content.CursorLoader;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -29,82 +43,74 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private UserRegsiterTask mAuthTask = null;
 
     // UI references.
+    private TextView mNameView;
     private TextView mEmailView;
     private EditText mPasswordView;
+    private EditText mPasswordConfirmView;
     private View mProgressView;
-    private View mLoginFormView;
+    private View mRegisterFormView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+
+        setContentView(R.layout.activity_register);
         // Set up the login form.
         mEmailView = (TextView) findViewById(R.id.email);
-
+        mNameView = (TextView) findViewById(R.id.name);
         mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
+        mPasswordConfirmView = (EditText) findViewById(R.id.password_confirm);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button mRegisterButton = (Button) findViewById(R.id.register);
+        mRegisterButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
-            }
-        });
-        Button btnInscription = (Button) findViewById(R.id.subscribe_button);
-        btnInscription.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
-                startActivity(intent);
-                finish();
-
+                attemptRegister();
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        mRegisterFormView = findViewById(R.id.register_form);
+        mProgressView = findViewById(R.id.register_progress);
     }
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
+     * Attempts to register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin() {
+    private void attemptRegister() {
         if (mAuthTask != null) {
             return;
         }
 
         // Reset errors.
         mEmailView.setError(null);
+        mNameView.setError(null);
         mPasswordView.setError(null);
+        mPasswordConfirmView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
+        String name = mNameView.getText().toString();
         String password = mPasswordView.getText().toString();
+        String passwordConfirm = mPasswordConfirmView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -116,8 +122,21 @@ public class LoginActivity extends AppCompatActivity {
             cancel = true;
 
         } else if (!isPasswordValid(password)) {
+
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
+            cancel = true;
+
+        } else if(TextUtils.isEmpty(passwordConfirm)) {
+
+            mPasswordConfirmView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordConfirmView;
+            cancel = true;
+
+        } else if(!password.equals(passwordConfirm)) {
+
+            mPasswordConfirmView.setError(getString(R.string.error_different_passwords));
+            focusView = mPasswordConfirmView;
             cancel = true;
         }
 
@@ -132,6 +151,17 @@ public class LoginActivity extends AppCompatActivity {
             cancel = true;
         }
 
+        // Check for a valid name.
+        if (TextUtils.isEmpty(name)) {
+            mNameView.setError(getString(R.string.error_field_required));
+            focusView = mNameView;
+            cancel = true;
+        } else if (!isNameValid(name)) {
+            mNameView.setError(getString(R.string.error_invalid_name));
+            focusView = mNameView;
+            cancel = true;
+        }
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -140,7 +170,7 @@ public class LoginActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserRegsiterTask(email, name, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -155,6 +185,11 @@ public class LoginActivity extends AppCompatActivity {
         return password.length() > 4;
     }
 
+    private boolean isNameValid(String name) {
+        //TODO: Replace this with your own logic
+        return name.length() > 5;
+    }
+
     /**
      * Shows the progress UI and hides the login form.
      */
@@ -166,12 +201,12 @@ public class LoginActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+            mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mRegisterFormView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
@@ -187,32 +222,53 @@ public class LoginActivity extends AppCompatActivity {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
+        finish();
+        return true;
+
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
+        finish();
+
     }
 
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, User> {
+    public class UserRegsiterTask extends AsyncTask<Void, Void, User> {
 
         private final String mEmail;
+        private final String mName;
         private final String mPassword;
 
-        UserLoginTask(String email, String password) {
+        UserRegsiterTask(String email, String name, String password) {
             mEmail = email;
             mPassword = password;
+            mName = name;
         }
 
         @Override
         protected User doInBackground(Void... params) {
-
+            // TODO: attempt authentication against a network service.
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String response = null;
             try {
-                URL url = new URL("http://ycaillon.com/fanficAPI/public/api/v1/user/connect?email="+mEmail+"&pass="+mPassword);
+                URL url = new URL("http://ycaillon.com/fanficAPI/public/api/v1/user?email="+mEmail+"&pass="+mPassword+"&name="+mName);
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -244,7 +300,7 @@ public class LoginActivity extends AppCompatActivity {
 
             } catch (Exception e) {
 
-                Log.e("LoginActivity", "Error ", e);
+                Log.e("RegisterActivity", "Error ", e);
                 return null;
 
             } finally {
@@ -260,17 +316,17 @@ public class LoginActivity extends AppCompatActivity {
 
                     } catch (final IOException e) {
 
-                        Log.e("LoginActivity", "Error closing stream", e);
+                        Log.e("RegisterActivity", "Error closing stream", e);
                     }
                 }
             }
-            User userConnect = JsonApiToData.loginOrRegisterUser(response);
+            User userRegister = JsonApiToData.loginOrRegisterUser(response);
 
-            if(!userConnect.getStatus().containsKey(User.ERROR)) {
+            if(!userRegister.getStatus().containsKey(User.ERROR)) {
 
-                userConnect.setPass(mPassword);
+                userRegister.setPass(mPassword);
             }
-            return userConnect;
+            return userRegister;
         }
 
         @Override
@@ -289,12 +345,13 @@ public class LoginActivity extends AppCompatActivity {
                 editor.commit();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
+                Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.register_success), Toast.LENGTH_SHORT);
+                toast.show();
                 finish();
 
             } else {
 
-                Toast toast = Toast.makeText(getApplicationContext(), user.getStatus().get(User.ERROR), Toast.LENGTH_SHORT);
-                toast.show();
+                mEmailView.setError(user.getStatus().get(User.ERROR));
                 mEmailView.requestFocus();
             }
         }

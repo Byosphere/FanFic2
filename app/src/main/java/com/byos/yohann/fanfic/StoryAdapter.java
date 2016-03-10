@@ -2,6 +2,7 @@ package com.byos.yohann.fanfic;
 
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -26,6 +27,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.ViewHolder> 
     private ArrayList<Story> mDataSet;
     private Activity activity;
     private StoryListFragment storyListFragment;
+
 
     // BEGIN_INCLUDE(recyclerViewSampleViewHolder)
     /**
@@ -162,6 +164,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.ViewHolder> 
 
 
     public void swap(ArrayList<Story> datas){
+
         mDataSet.clear();
         mDataSet.addAll(datas);
         notifyDataSetChanged();

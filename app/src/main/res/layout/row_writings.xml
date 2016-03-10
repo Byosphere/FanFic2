@@ -9,43 +9,33 @@
     android:background="?android:attr/selectableItemBackground"
     android:id="@+id/row_writings">
 
-    <ImageView
-        android:id="@+id/avatar_writings"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        tools:background="#AAA"
-        android:background="#AAA"
-        android:layout_marginTop="5dp"
-        />
-
     <TextView
         android:id="@+id/titre_writings"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
         android:layout_marginLeft="10dp"
-        android:textSize="8pt"
+        android:textSize="12pt"
         tools:text="Titre"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/avatar_writings"
         android:maxLines="1"
         android:ellipsize="end"/>
 
     <ImageButton
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:id="@+id/write_new_page"
         android:background="@drawable/ic_write"
-        android:layout_alignBottom="@+id/avatar_writings"
+        android:layout_alignTop="@+id/imageButton"
         android:layout_alignParentEnd="true" />
 
     <ImageButton
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:id="@+id/imageButton"
         android:background="@drawable/ic_lock_open"
-        android:layout_alignTop="@+id/write_new_page"
-        android:layout_toStartOf="@+id/write_new_page"
-        android:layout_marginEnd="10dp" />
+        android:layout_marginEnd="20dp"
+        android:layout_alignBottom="@+id/titre_writings"
+        android:layout_toStartOf="@+id/write_new_page" />
 
 </RelativeLayout>

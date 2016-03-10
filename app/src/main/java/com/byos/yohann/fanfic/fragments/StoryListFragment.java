@@ -1,11 +1,12 @@
 package com.byos.yohann.fanfic.fragments;
 
-import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,11 +21,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.byos.yohann.fanfic.FullPageActivity;
 import com.byos.yohann.fanfic.JsonApiToData;
 import com.byos.yohann.fanfic.MainActivity;
+import com.byos.yohann.fanfic.Page;
 import com.byos.yohann.fanfic.R;
 import com.byos.yohann.fanfic.Story;
 import com.byos.yohann.fanfic.StoryAdapter;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,6 +39,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
@@ -48,6 +55,8 @@ public class StoryListFragment extends Fragment {
     protected ArrayList<Story> data;
     protected RecyclerView.LayoutManager mLayoutManager;
     protected View rootView;
+    protected StoryManagerTask storyManagerTask;
+    protected Story currentStory;
 
     public StoryListFragment() {
         // Required empty public constructor
@@ -57,10 +66,17 @@ public class StoryListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        data = new ArrayList<>();
-        storyAdapter = new StoryAdapter(getActivity(), this, data);
-        StoryManagerTask stm = new StoryManagerTask(this);
-        stm.execute();
+        if(savedInstanceState == null) {
+
+            data = new ArrayList<>();
+            storyAdapter = new StoryAdapter(getActivity(), this, data);
+            storyManagerTask = new StoryManagerTask(this);
+            storyManagerTask.execute(StoryManagerTask.GET_USER_FOLLOWED);
+        } else {
+            data = savedInstanceState.getParcelableArrayList(TAG);
+            storyAdapter = new StoryAdapter(getActivity(), this, data);
+        }
+
     }
 
     @Override
@@ -73,8 +89,12 @@ public class StoryListFragment extends Fragment {
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getString(R.string.app_name));
         mRecyclerView.setAdapter(storyAdapter);
-        ProgressBar loader = (ProgressBar) rootView.findViewById(R.id.loader_story_list);
-        loader.setVisibility(View.VISIBLE);
+        if (savedInstanceState == null) {
+
+            ProgressBar loader = (ProgressBar) rootView.findViewById(R.id.loader_story_list);
+            loader.setVisibility(View.VISIBLE);
+        }
+
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         return rootView;
@@ -90,20 +110,33 @@ public class StoryListFragment extends Fragment {
 
     public void onClickStory(Story story) {
 
+        Intent intent = new Intent(getActivity(), FullPageActivity.class);
+        intent.putExtra(FullPageActivity.PAGE_ACTUELLE, story.getPageActuelle());
+        intent.putExtra(FullPageActivity.STORY_ID, story.getId());
+        startActivity(intent);
+
     }
 
     public void deleteStory(Story story) {
 
-        data.remove(story);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.detach(this).attach(this).commit();
-        Toast.makeText(getActivity(), story.getTitre() + " " + getString(R.string.deleted), Toast.LENGTH_SHORT).show();
+        currentStory = story;
+        storyManagerTask = new StoryManagerTask(this);
+        storyManagerTask.execute(StoryManagerTask.DELETE_STORY_FOLLOWED, story.getId()+"");
+
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
 
-    public class StoryManagerTask extends AsyncTask<String, Void, String> {
+        outState.putParcelableArrayList(TAG, data);
+    }
+
+    public class StoryManagerTask extends AsyncTask<String, Void, HashMap<String, String>> {
 
         private final String TAG = StoryManagerTask.class.getSimpleName();
+        private static final String GET_USER_FOLLOWED = "get_user_followed";
+        private static final String DELETE_STORY_FOLLOWED = "delete_story_followed";
+        //private static final String GET_CURRENT_PAGE = "get_current_page";
         private Fragment fragment;
 
         public StoryManagerTask(Fragment fragment) {
@@ -112,27 +145,53 @@ public class StoryListFragment extends Fragment {
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected HashMap<String, String> doInBackground(String... params) {
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-
             String storyListJson = null;
 
+            //On récupère les informations de l'utilisateur
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences(MainActivity.USERFILE, Context.MODE_PRIVATE);
+            int userId = sharedPreferences.getInt(MainActivity.USERID, 0);
+            String userMail = sharedPreferences.getString(MainActivity.USEREMAIL, MainActivity.USEREMAIL);
+            String userPass = sharedPreferences.getString(MainActivity.USERPASS, MainActivity.USERPASS);
+
             try {
-
-                SharedPreferences sharedPreferences = getActivity().getSharedPreferences(MainActivity.USERFILE, Context.MODE_PRIVATE);
-                int userId = sharedPreferences.getInt(MainActivity.USERID, 0);
-                String userMail = sharedPreferences.getString(MainActivity.USEREMAIL, MainActivity.USEREMAIL);
-                String userPass = sharedPreferences.getString(MainActivity.USERPASS, MainActivity.USERPASS);
-
-                URL url = new URL("http://ycaillon.com/fanficAPI/public/api/v1/user/"+userId);
-
-                // Create the request to OpenWeatherMap, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
                 String encoded = Base64.encodeToString((userMail+":"+userPass).getBytes("UTF-8"), Base64.NO_WRAP);
-                urlConnection.setRequestProperty("Authorization", "Basic "+encoded);
-                urlConnection.setRequestMethod("GET");
+                URL url = null;
+
+
+                switch (params[0]) {
+
+                    case GET_USER_FOLLOWED:
+
+                        url = new URL("http://ycaillon.com/fanficAPI/public/api/v1/user/"+userId);
+                        urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestProperty("Authorization", "Basic "+encoded);
+                        urlConnection.setRequestMethod("GET");
+                        break;
+
+                    case DELETE_STORY_FOLLOWED:
+
+                        url = new URL("http://ycaillon.com/fanficAPI/public/api/v1/user/"+userId+"?follow="+params[1]+"&page=-1");
+                        urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestProperty("Authorization", "Basic "+encoded);
+                        urlConnection.setRequestMethod("PUT");
+                        break;
+                    /*
+                    case GET_CURRENT_PAGE:
+
+                        url = new URL("http://ycaillon.com/fanficAPI/public/api/v1/story/"+params[1]);
+                        urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestProperty("Authorization", "Basic "+encoded);
+                        urlConnection.setRequestMethod("GET");
+                        break;
+                    */
+                    default:
+                        throw new Exception("Action de connexion inconnue");
+                }
+
                 urlConnection.connect();
 
                 // Read the input stream into a String
@@ -158,6 +217,7 @@ public class StoryListFragment extends Fragment {
                 }
                 storyListJson = buffer.toString();
 
+
             } catch (Exception e) {
 
                 Log.e("StoryListFragment", "Error ", e);
@@ -180,22 +240,27 @@ public class StoryListFragment extends Fragment {
                     }
                 }
             }
-            return storyListJson;
+            HashMap<String, String> reponse = new HashMap<String, String>();
+            reponse.put(params[0], storyListJson);
+            return reponse;
 
         }
-        @Override
-        protected void onPostExecute(String result) {
 
-            (fragment.getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
+        @Override
+        protected void onPostExecute(HashMap<String, String> result) {
+
+            storyManagerTask = null;
             TextView tv = (TextView) (fragment.getActivity().findViewById(R.id.no_content));
-            if (result == null) {
+            if(result == null) {
 
                 tv.setText(getString(R.string.no_internet));
                 tv.setVisibility(View.VISIBLE);
+                return;
+            }
+            (fragment.getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
+            if(result.containsKey(GET_USER_FOLLOWED)) {
 
-            } else {
-
-                ArrayList<Story> data = JsonApiToData.getFollowedStories(result);
+                ArrayList<Story> data = JsonApiToData.getFollowedStories(result.get(GET_USER_FOLLOWED));
                 if(data.size()>0) {
 
                     storyAdapter.swap(data);
@@ -206,10 +271,48 @@ public class StoryListFragment extends Fragment {
                     tv.setVisibility(View.VISIBLE);
                 }
 
+            } else if(result.containsKey(DELETE_STORY_FOLLOWED)){
+
+                try {
+
+                    Snackbar snackbar = Snackbar.make(rootView, new JSONObject(result.get(DELETE_STORY_FOLLOWED)).getString("message"), Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                    if(!(new JSONObject(result.get(DELETE_STORY_FOLLOWED)).getBoolean("error"))) {
+
+                        data.remove(currentStory);
+                        storyAdapter.notifyDataSetChanged();
+
+                    }
+
+                } catch (JSONException e) {
+
+
+                    Toast toast = Toast.makeText(getActivity().getApplicationContext(), getString(R.string.error_parsing), Toast.LENGTH_SHORT);
+                    toast.show();
+
+                }
+
             }
+            /*
+            else if(result.containsKey(GET_CURRENT_PAGE)) {
+
+
+                Page page = JsonApiToData.getPageAt(currentStory.getPageActuelle(), result.get(GET_CURRENT_PAGE));
+                Log.d("La page", page.getText());
+                Intent intent = new Intent(getActivity(), FullPageActivity.class);
+                intent.putExtra(FullPageActivity.PAGE, page);
+                startActivity(intent);
+            }
+            */
 
         }
 
+        @Override
+        protected void onCancelled() {
+
+            storyManagerTask = null;
+            (fragment.getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
+        }
     }
     // --------------
 }

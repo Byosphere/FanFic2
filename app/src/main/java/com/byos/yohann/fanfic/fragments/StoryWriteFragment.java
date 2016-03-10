@@ -1,20 +1,32 @@
 package com.byos.yohann.fanfic.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.byos.yohann.fanfic.MainActivity;
 import com.byos.yohann.fanfic.R;
 import com.byos.yohann.fanfic.Story;
 import com.byos.yohann.fanfic.JsonApiToData;
 import com.byos.yohann.fanfic.StoryWriteAdapter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class StoryWriteFragment extends Fragment {
@@ -35,7 +47,7 @@ public class StoryWriteFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        data = new ArrayList<>();
     }
 
     @Override
