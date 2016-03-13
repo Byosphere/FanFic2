@@ -1,6 +1,7 @@
 package com.byos.yohann.fanfic;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,15 +10,14 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,12 +25,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class FullPageActivity extends AppCompatActivity implements GestureDetector.OnDoubleTapListener {
+public class FullPageActivity extends AppCompatActivity implements GestureDetector.OnDoubleTapListener, GestureDetector.OnGestureListener {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -50,9 +51,23 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
     private static final int UI_ANIMATION_DELAY = 300;
     public static final String PAGE_ACTUELLE = "page_actuelle";
     public static final String STORY_ID = "story_id";
+    public static final String STORY_TITLE = "story_title";
+    public static final String TOTAL_PAGES = "total_pages";
+    private static final java.lang.String PAGE_CONTENT = "page_content";
+    private static final String LISTE_PAGES = "liste_pages";
     private final Handler mHideHandler = new Handler();
     private View mContentView;
+    private TextView mPagination;
+    private TextView mPageContent;
+    private int nbTotalPages;
+    private int initialPageLocation;
+    private ArrayList<Page> mListePage;
+    private int mPageActuelle;
     private ProgressBar loader;
+    private GestureDetector mDetector;
+    private int mStoryId;
+    private float x1,x2;
+    static final int MIN_DISTANCE = 150;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -70,7 +85,6 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
-    private View mControlsView;
 
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
@@ -80,7 +94,6 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
             if (actionBar != null) {
                 actionBar.show();
             }
-            mControlsView.setVisibility(View.VISIBLE);
         }
     };
     private boolean mVisible;
@@ -112,41 +125,102 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
         setContentView(R.layout.activity_fullpage);
         Intent intent = getIntent();
         mVisible = true;
-        mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
+        mPagination = (TextView) findViewById(R.id.pagination);
+        mPageContent = (TextView) findViewById(R.id.page_content);
         loader = (ProgressBar) findViewById(R.id.page_loader);
+        nbTotalPages = intent.getIntExtra(TOTAL_PAGES, 1);
+        mStoryId = intent.getIntExtra(STORY_ID, 0);
 
+        getSupportActionBar().setTitle(intent.getStringExtra(STORY_TITLE));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
 
-
+        mDetector = new GestureDetector(this, this);
+        mDetector.setOnDoubleTapListener(this);
         if(savedInstanceState == null) {
 
+            mPageActuelle = intent.getIntExtra(PAGE_ACTUELLE, 1);
+            nbTotalPages = intent.getIntExtra(TOTAL_PAGES, 1);
             loader.setVisibility(View.VISIBLE);
-            QueryPageTask queryPageTask = new QueryPageTask(intent.getIntExtra(STORY_ID, 0), intent.getIntExtra(PAGE_ACTUELLE, 1));
+            mContentView.setVisibility(View.INVISIBLE);
+            QueryPageTask queryPageTask = new QueryPageTask(mStoryId, QueryPageTask.RECUPERER_PAGES);
             queryPageTask.execute();
-        }
+        } else {
+            mListePage = savedInstanceState.getParcelableArrayList(LISTE_PAGES);
+            mPageActuelle = savedInstanceState.getInt(PAGE_ACTUELLE);
+            mPagination.setText(mPageActuelle+" / "+nbTotalPages);
+            mPageContent.setText(savedInstanceState.getString(PAGE_CONTENT));
 
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(PAGE_ACTUELLE, mPageActuelle);
+        outState.putString(PAGE_CONTENT, mPageContent.getText().toString());
+        outState.putParcelableArrayList(LISTE_PAGES, mListePage);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100);
+        delayedHide(50);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        switch(event.getAction())
+        {
+            case MotionEvent.ACTION_DOWN:
+                x1 = event.getX();
+                break;
+            case MotionEvent.ACTION_UP:
+                x2 = event.getX();
+                float deltaX = x2 - x1;
+
+                if (Math.abs(deltaX) > MIN_DISTANCE) {
+                    // Left to Right swipe action (page suivante)
+                    if (x2 > x1) {
+                        previousPage();
+                    } else {
+                        nextPage();
+                    }
+
+                }
+                break;
+        }
+
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    private void previousPage() {
+
+        if(mPageActuelle > 1) {
+
+            mPageActuelle--;
+            mPagination.setText(mPageActuelle+" / "+nbTotalPages);
+            mPageContent.setText(mListePage.get(mPageActuelle-1).getText());
+        }
+    }
+
+    private void nextPage() {
+
+        if(mPageActuelle < nbTotalPages) {
+
+            mPageActuelle++;
+            mPagination.setText(mPageActuelle+" / "+nbTotalPages);
+            mPageContent.setText(mListePage.get(mPageActuelle-1).getText());
+        }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev){
+        super.dispatchTouchEvent(ev);
+        return mDetector.onTouchEvent(ev);
     }
 
     private void toggle() {
@@ -163,9 +237,8 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
         if (actionBar != null) {
             actionBar.hide();
         }
-        mControlsView.setVisibility(View.GONE);
         mVisible = false;
-
+        mContentView.setFitsSystemWindows(false);
         // Schedule a runnable to remove the status and navigation bar after a delay
         mHideHandler.removeCallbacks(mShowPart2Runnable);
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
@@ -177,6 +250,7 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
         mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         mVisible = true;
+        mContentView.setFitsSystemWindows(true);
 
         // Schedule a runnable to display UI elements after a delay
         mHideHandler.removeCallbacks(mHidePart2Runnable);
@@ -199,7 +273,9 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-        return false;
+
+        toggle();
+        return true;
     }
 
     @Override
@@ -207,20 +283,52 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
         return false;
     }
 
-    public class QueryPageTask extends AsyncTask<Void, Void, Page> {
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
 
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        return false;
+    }
+
+    public class QueryPageTask extends AsyncTask<Void, Void, ArrayList<Page>> {
+
+        private static final int RECUPERER_PAGES = 1;
+        private static final int UPDATE_PAGE = 2;
         private int storyId;
-        private int pageActuelle;
+        private int action;
 
-        public QueryPageTask(int storyId, int pageActuelle) {
+        public QueryPageTask(int storyId, int action) {
 
             this.storyId = storyId;
-            this.pageActuelle = pageActuelle;
+            this.action = action;
 
         }
 
         @Override
-        protected Page doInBackground(Void... params) {
+        protected ArrayList<Page> doInBackground(Void... params) {
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -234,10 +342,26 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
 
             try {
                 String encoded = Base64.encodeToString((userMail + ":" + userPass).getBytes("UTF-8"), Base64.NO_WRAP);
-                URL url = new URL("http://ycaillon.com/fanficAPI/public/api/v1/story/"+storyId);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestProperty("Authorization", "Basic "+encoded);
-                urlConnection.setRequestMethod("GET");
+                URL url = null;
+                switch (action) {
+
+                    case RECUPERER_PAGES:
+                        url = new URL("http://ycaillon.com/fanficAPI/public/api/v1/story/"+ storyId);
+                        urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestProperty("Authorization", "Basic "+encoded);
+                        urlConnection.setRequestMethod("GET");
+                        break;
+
+                    case UPDATE_PAGE:
+                        url = new URL("http://ycaillon.com/fanficAPI/public/api/v1/user/"+userId+"?follow="+ storyId+"&page="+mPageActuelle);
+                        urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestProperty("Authorization", "Basic "+encoded);
+                        urlConnection.setRequestMethod("PUT");
+                        break;
+
+                    default:
+                }
+
 
                 urlConnection.connect();
 
@@ -287,18 +411,52 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
                     }
                 }
             }
-            Page page = JsonApiToData.getPageAt(pageActuelle, datas);
+            ArrayList<Page> listePage = null;
 
-            return page;
+            if (action == RECUPERER_PAGES)
+                listePage = JsonApiToData.getPages(datas);
+
+            return listePage;
         }
 
         @Override
-        protected void onPostExecute(Page page) {
+        protected void onPostExecute(ArrayList<Page> pages) {
 
-            Log.d("Fonctionné !", page.getText());
-            loader.setVisibility(View.INVISIBLE);
+
+            if(action == RECUPERER_PAGES) {
+
+                if(pages == null) {
+                    Toast.makeText(getApplicationContext(), R.string.error_page, Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                mListePage = pages;
+                mPagination.setText(mPageActuelle+" / "+nbTotalPages);
+                mPageContent.setText(pages.get(mPageActuelle-1).getText());
+                loader.setVisibility(View.INVISIBLE);
+                mContentView.setVisibility(View.VISIBLE);
+
+            } else {
+
+                Log.d("action", "execute");
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(PAGE_ACTUELLE, mPageActuelle);
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
+            }
+
         }
     }
 
+    @Override
+    public void onBackPressed() {
 
+        if(initialPageLocation != mPageActuelle) {
+            QueryPageTask queryPageTask = new QueryPageTask(mStoryId, QueryPageTask.UPDATE_PAGE);
+            queryPageTask.execute();
+        } else {
+
+          super.onBackPressed();
+        }
+
+    }
 }

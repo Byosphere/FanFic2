@@ -103,7 +103,7 @@ public class JsonApiToData {
                 "Donec blandit orci lectus, et finibus tellus interdum non. Etiam rhoncus nunc tortor, vitae condimentum ipsum facilisis nec. Nulla vel massa non nisl bibendum sagittis quis imperdiet velit. In hac habitasse platea dictumst. Quisque fermentum auctor mi eu bibendum. Nunc mollis volutpat metus, vel maximus ante molestie vel. Mauris in mauris sed lacus pulvinar fermentum in at sem.Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi id porttitor sapien, a hendrerit dui. Aliquam euismod congue sem id vulputate. Nam non metus et ipsum blandit luctus. Donec at lectus mauris. Sed sagittis cursus mattis. Ut vitae mi est. Praesent et magna id justo elementum ornare. Nunc varius rhoncus posuere. Nulla sit amet metus convallis, congue tortor vel, suscipit purus. Integer aliquam consequat ante ultrices hendrerit. Integer id convallis eros, maximus lobortis tortor. Donec placerat consequat ligula, et mattis quam volutpat sit amet.", 1);
     }
 
-    public static Page getPageAt(int pageActuelle, String s) {
+    public static ArrayList<Page> getPages(String s) {
 
         ArrayList<Page> listePage = new ArrayList<Page>();
         try {
@@ -119,7 +119,7 @@ public class JsonApiToData {
 
 
         }
-        return listePage.get(pageActuelle-1);
+        return listePage;
     }
 
 }

@@ -193,4 +193,5 @@ implements NavigationView.OnNavigationItemSelectedListener {
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
+
 }

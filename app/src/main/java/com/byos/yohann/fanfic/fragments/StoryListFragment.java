@@ -1,5 +1,6 @@
 package com.byos.yohann.fanfic.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -110,10 +111,13 @@ public class StoryListFragment extends Fragment {
 
     public void onClickStory(Story story) {
 
+        currentStory = story;
         Intent intent = new Intent(getActivity(), FullPageActivity.class);
         intent.putExtra(FullPageActivity.PAGE_ACTUELLE, story.getPageActuelle());
+        intent.putExtra(FullPageActivity.TOTAL_PAGES, story.getNbTotalPages());
         intent.putExtra(FullPageActivity.STORY_ID, story.getId());
-        startActivity(intent);
+        intent.putExtra(FullPageActivity.STORY_TITLE, story.getTitre());
+        startActivityForResult(intent, 0);
 
     }
 
@@ -255,6 +259,7 @@ public class StoryListFragment extends Fragment {
 
                 tv.setText(getString(R.string.no_internet));
                 tv.setVisibility(View.VISIBLE);
+                (fragment.getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
                 return;
             }
             (fragment.getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
@@ -293,17 +298,6 @@ public class StoryListFragment extends Fragment {
                 }
 
             }
-            /*
-            else if(result.containsKey(GET_CURRENT_PAGE)) {
-
-
-                Page page = JsonApiToData.getPageAt(currentStory.getPageActuelle(), result.get(GET_CURRENT_PAGE));
-                Log.d("La page", page.getText());
-                Intent intent = new Intent(getActivity(), FullPageActivity.class);
-                intent.putExtra(FullPageActivity.PAGE, page);
-                startActivity(intent);
-            }
-            */
 
         }
 
@@ -315,4 +309,16 @@ public class StoryListFragment extends Fragment {
         }
     }
     // --------------
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == Activity.RESULT_OK) {
+
+            currentStory.setPageActuelle(data.getIntExtra(FullPageActivity.PAGE_ACTUELLE, currentStory.getPageActuelle()));
+            storyAdapter.notifyDataSetChanged();
+        }
+
+
+    }
 }
