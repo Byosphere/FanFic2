@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +19,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -131,6 +134,7 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
         loader = (ProgressBar) findViewById(R.id.page_loader);
         nbTotalPages = intent.getIntExtra(TOTAL_PAGES, 1);
         mStoryId = intent.getIntExtra(STORY_ID, 0);
+        initialPageLocation = intent.getIntExtra(PAGE_ACTUELLE, 1);
 
         getSupportActionBar().setTitle(intent.getStringExtra(STORY_TITLE));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -139,7 +143,7 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
         mDetector.setOnDoubleTapListener(this);
         if(savedInstanceState == null) {
 
-            mPageActuelle = intent.getIntExtra(PAGE_ACTUELLE, 1);
+            mPageActuelle = initialPageLocation;
             nbTotalPages = intent.getIntExtra(TOTAL_PAGES, 1);
             loader.setVisibility(View.VISIBLE);
             mContentView.setVisibility(View.INVISIBLE);
@@ -219,8 +223,7 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev){
-        super.dispatchTouchEvent(ev);
-        return mDetector.onTouchEvent(ev);
+        return this.onTouchEvent(ev);
     }
 
     private void toggle() {
@@ -437,7 +440,6 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
 
             } else {
 
-                Log.d("action", "execute");
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra(PAGE_ACTUELLE, mPageActuelle);
                 setResult(Activity.RESULT_OK, resultIntent);
@@ -453,6 +455,7 @@ public class FullPageActivity extends AppCompatActivity implements GestureDetect
         if(initialPageLocation != mPageActuelle) {
             QueryPageTask queryPageTask = new QueryPageTask(mStoryId, QueryPageTask.UPDATE_PAGE);
             queryPageTask.execute();
+            Snackbar.make(mContentView, getString(R.string.sauvegarde), Snackbar.LENGTH_LONG).show();
         } else {
 
           super.onBackPressed();

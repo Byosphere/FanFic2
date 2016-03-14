@@ -32,6 +32,7 @@ import com.byos.yohann.fanfic.StoryAdapter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,6 +59,7 @@ public class StoryListFragment extends Fragment {
     protected View rootView;
     protected StoryManagerTask storyManagerTask;
     protected Story currentStory;
+    protected TextView noContent;
 
     public StoryListFragment() {
         // Required empty public constructor
@@ -70,13 +72,12 @@ public class StoryListFragment extends Fragment {
         if(savedInstanceState == null) {
 
             data = new ArrayList<>();
-            storyAdapter = new StoryAdapter(getActivity(), this, data);
-            storyManagerTask = new StoryManagerTask(this);
+            storyManagerTask = new StoryManagerTask();
             storyManagerTask.execute(StoryManagerTask.GET_USER_FOLLOWED);
         } else {
             data = savedInstanceState.getParcelableArrayList(TAG);
-            storyAdapter = new StoryAdapter(getActivity(), this, data);
         }
+        storyAdapter = new StoryAdapter(getActivity(), this, data);
 
     }
 
@@ -87,6 +88,7 @@ public class StoryListFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_story_list, container, false);
         rootView.setTag(TAG);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list_view_story);
+        noContent = (TextView) rootView.findViewById(R.id.no_content);
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getString(R.string.app_name));
         mRecyclerView.setAdapter(storyAdapter);
@@ -124,7 +126,7 @@ public class StoryListFragment extends Fragment {
     public void deleteStory(Story story) {
 
         currentStory = story;
-        storyManagerTask = new StoryManagerTask(this);
+        storyManagerTask = new StoryManagerTask();
         storyManagerTask.execute(StoryManagerTask.DELETE_STORY_FOLLOWED, story.getId()+"");
 
     }
@@ -137,16 +139,8 @@ public class StoryListFragment extends Fragment {
 
     public class StoryManagerTask extends AsyncTask<String, Void, HashMap<String, String>> {
 
-        private final String TAG = StoryManagerTask.class.getSimpleName();
         private static final String GET_USER_FOLLOWED = "get_user_followed";
         private static final String DELETE_STORY_FOLLOWED = "delete_story_followed";
-        //private static final String GET_CURRENT_PAGE = "get_current_page";
-        private Fragment fragment;
-
-        public StoryManagerTask(Fragment fragment) {
-
-            this.fragment = fragment;
-        }
 
         @Override
         protected HashMap<String, String> doInBackground(String... params) {
@@ -254,15 +248,14 @@ public class StoryListFragment extends Fragment {
         protected void onPostExecute(HashMap<String, String> result) {
 
             storyManagerTask = null;
-            TextView tv = (TextView) (fragment.getActivity().findViewById(R.id.no_content));
             if(result == null) {
 
-                tv.setText(getString(R.string.no_internet));
-                tv.setVisibility(View.VISIBLE);
-                (fragment.getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
+                noContent.setText(getString(R.string.no_internet));
+                noContent.setVisibility(View.VISIBLE);
+                (getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
                 return;
             }
-            (fragment.getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
+            (getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
             if(result.containsKey(GET_USER_FOLLOWED)) {
 
                 ArrayList<Story> data = JsonApiToData.getFollowedStories(result.get(GET_USER_FOLLOWED));
@@ -272,8 +265,8 @@ public class StoryListFragment extends Fragment {
 
                 } else {
 
-                    tv.setText(getString(R.string.no_content));
-                    tv.setVisibility(View.VISIBLE);
+                    noContent.setText(getString(R.string.no_content));
+                    noContent.setVisibility(View.VISIBLE);
                 }
 
             } else if(result.containsKey(DELETE_STORY_FOLLOWED)){
@@ -305,7 +298,7 @@ public class StoryListFragment extends Fragment {
         protected void onCancelled() {
 
             storyManagerTask = null;
-            (fragment.getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
+            (getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
         }
     }
     // --------------

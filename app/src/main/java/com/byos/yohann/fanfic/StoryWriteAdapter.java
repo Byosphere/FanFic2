@@ -31,17 +31,20 @@ public class StoryWriteAdapter extends RecyclerView.Adapter<StoryWriteAdapter.Vi
      */
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView titre;
+        public TextView pages;
         public RelativeLayout conteneur;
 
         public ViewHolder(View v) {
             super(v);
 
-            titre = (TextView) v.findViewById(R.id.titre);
-            conteneur = (RelativeLayout) v.findViewById(R.id.row_story);
+            titre = (TextView) v.findViewById(R.id.titre_writings);
+            pages = (TextView) v.findViewById(R.id.pages_write);
+            conteneur = (RelativeLayout) v.findViewById(R.id.row_writings);
 
         }
 
         public TextView getTitre() {return titre;}
+        public TextView getPages() {return pages;}
         public RelativeLayout getConteneur() {return conteneur;}
 
     }
@@ -66,6 +69,7 @@ public class StoryWriteAdapter extends RecyclerView.Adapter<StoryWriteAdapter.Vi
     public void onBindViewHolder(ViewHolder holder, int position) {
 
         holder.getTitre().setText(mDataSet.get(position).getTitre());
+        holder.getPages().setText(mDataSet.get(position).getNbTotalPages()+" "+activity.getResources().getString(R.string.pages));
 
     }
 

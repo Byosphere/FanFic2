@@ -55,5 +55,13 @@ Donec blandit orci lectus, et finibus tellus interdum non. Etiam rhoncus nunc to
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="error_page">Une erreur est survenue en récupérant la page</string>
+    <string name="best_stories">A la Une</string>
+    <string name="sauvegarde">Ssauvegarde de la progression...</string>
+    <string name="title_activity_edit_story">EditStoryActivity</string>
+    <string name="new_story_titre">Titre</string>
+    <string name="reference">Univers de référence</string>
+    <string name="new_page">Rédiger la première page</string>
+    <string name="premiere_page">Première page</string>
+    <string name="action_post">Poster la première page</string>
 
 </resources>
