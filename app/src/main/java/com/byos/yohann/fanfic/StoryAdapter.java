@@ -98,6 +98,10 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.ViewHolder> 
                             case R.id.context_delete:
                                 storyListFragment.deleteStory(mDataSet.get(getAdapterPosition()));
                                 break;
+
+                            case R.id.context_author:
+                                storyListFragment.showAuthor(mDataSet.get(getAdapterPosition()).getUserId(), mDataSet.get(getAdapterPosition()).getAuteur());
+                                break;
                         }
 
                         return false;
@@ -137,11 +141,13 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
 
+        /*
         if(mDataSet.get(position).getPageActuelle() == mDataSet.get(position).getNbTotalPages()) {
             viewHolder.getConteneur().setAlpha((float) 0.3);
         } else {
             viewHolder.getConteneur().setAlpha((float) 1);
         }
+        */
 
         // Get element from your dataset at this position and replace the contents of the view
         // with that element

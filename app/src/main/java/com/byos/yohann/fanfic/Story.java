@@ -17,14 +17,18 @@ public class Story implements Parcelable {
     private String auteur;
     private int pageActuelle;
     private String reference;
+    private boolean followed;
+    private int userId;
 
-    public Story(int id, int nbTotalPages, String titre, String auteur, int pageActuelle, String ref){
+    public Story(int id, int nbTotalPages, String titre, int userId, String auteur, int pageActuelle, String ref){
         this.id = id;
         this.nbTotalPages = nbTotalPages;
         this.titre = titre;
         this.auteur = auteur;
         this.pageActuelle = pageActuelle;
         this.reference = ref;
+        this.followed = false;
+        this.userId = userId;
 
     }
 
@@ -68,6 +72,14 @@ public class Story implements Parcelable {
         this.nbTotalPages = nbPages;
     }
 
+    public boolean isFollowed() {
+        return followed;
+    }
+
+    public void setFollowed(boolean followed) {
+        this.followed = followed;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -82,6 +94,8 @@ public class Story implements Parcelable {
         dest.writeString(auteur);
         dest.writeInt(pageActuelle);
         dest.writeString(reference);
+        dest.writeInt(followed ? 1 : 0);
+        dest.writeInt(userId);
 
     }
     public static final Creator<Story> CREATOR = new Creator<Story>()
@@ -107,9 +121,19 @@ public class Story implements Parcelable {
         this.auteur = in.readString();
         this.pageActuelle = in.readInt();
         this.reference = in.readString();
+        this.followed = in.readInt() != 0;
+        this.userId = in.readInt();
     }
 
     public int getId() {
         return id;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 }

@@ -8,7 +8,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,15 +20,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.byos.yohann.fanfic.EditStoryActivity;
-import com.byos.yohann.fanfic.FullPageActivity;
 import com.byos.yohann.fanfic.MainActivity;
+import com.byos.yohann.fanfic.NewPageActivity;
 import com.byos.yohann.fanfic.R;
 import com.byos.yohann.fanfic.Story;
 import com.byos.yohann.fanfic.JsonApiToData;
-import com.byos.yohann.fanfic.StoryAdapter;
 import com.byos.yohann.fanfic.StoryWriteAdapter;
-
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,12 +34,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class StoryWriteFragment extends Fragment {
 
 
     private static final String TAG = StoryWriteFragment.class.getSimpleName();
+    private static final int UPDATE_LIST_REQUEST = 1;
     protected RecyclerView mRecyclerView;
     protected StoryWriteAdapter storyAdapter;
     protected ArrayList<Story> data;
@@ -102,7 +98,7 @@ public class StoryWriteFragment extends Fragment {
             public void onClick(View view) {
 
                 Intent intent = new Intent(getActivity(), EditStoryActivity.class);
-                startActivityForResult(intent, 0);
+                startActivityForResult(intent, UPDATE_LIST_REQUEST);
             }
         });
 
@@ -113,6 +109,13 @@ public class StoryWriteFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
 
         outState.putParcelableArrayList(TAG, data);
+    }
+
+    public void onClickStory(int id) {
+
+        Intent intent = new Intent(getActivity(), NewPageActivity.class);
+        intent.putExtra(NewPageActivity.STORY_ID, id);
+        startActivityForResult(intent, UPDATE_LIST_REQUEST);
     }
 
 
@@ -181,7 +184,7 @@ public class StoryWriteFragment extends Fragment {
 
                     } catch (final IOException e) {
 
-                        Log.e("StoryListFragment", "Error closing stream", e);
+                        Log.e("StoryWriteFragment", "Error closing stream", e);
                     }
                 }
             }

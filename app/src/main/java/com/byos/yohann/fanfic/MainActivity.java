@@ -36,6 +36,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
 
     private static String TAG = MainActivity.class.getSimpleName();
     private Toolbar toolbar;
+    private MenuItem currentItem;
     public static final String USERID = "user_id";
     public static final String USEREMAIL = "user_mail";
     public static final String USERNAME = "user_name";
@@ -75,9 +76,12 @@ implements NavigationView.OnNavigationItemSelectedListener {
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
             navigationView.setNavigationItemSelectedListener(this);
             navigationView.getMenu().getItem(0).setChecked(true);
+            currentItem = navigationView.getMenu().getItem(0);
             setHeaderView();
         }
     }
+
+
 
     private void setHeaderView() {
 
@@ -176,6 +180,8 @@ implements NavigationView.OnNavigationItemSelectedListener {
         return super.onOptionsItemSelected(item);
     }
 
+
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -183,6 +189,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
         FragmentManager fragmentManager = getFragmentManager();
         int id = item.getItemId();
         item.setChecked(true);
+        currentItem =item;
         fragmentManager.beginTransaction().replace(R.id.fragment_container, getFragment(id)).commit();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -196,4 +203,9 @@ implements NavigationView.OnNavigationItemSelectedListener {
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
+    public void setNotFocusMenu() {
+
+        currentItem.setChecked(false);
+
+    }
 }

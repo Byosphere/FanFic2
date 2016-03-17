@@ -1,6 +1,7 @@
 package com.byos.yohann.fanfic;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -29,7 +30,7 @@ public class StoryWriteAdapter extends RecyclerView.Adapter<StoryWriteAdapter.Vi
     /**
      * Provide a reference to the type of views that you are using (custom ViewHolder)
      */
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView titre;
         public TextView pages;
         public RelativeLayout conteneur;
@@ -37,6 +38,7 @@ public class StoryWriteAdapter extends RecyclerView.Adapter<StoryWriteAdapter.Vi
         public ViewHolder(View v) {
             super(v);
 
+            v.setOnClickListener(this);
             titre = (TextView) v.findViewById(R.id.titre_writings);
             pages = (TextView) v.findViewById(R.id.pages_write);
             conteneur = (RelativeLayout) v.findViewById(R.id.row_writings);
@@ -47,6 +49,12 @@ public class StoryWriteAdapter extends RecyclerView.Adapter<StoryWriteAdapter.Vi
         public TextView getPages() {return pages;}
         public RelativeLayout getConteneur() {return conteneur;}
 
+        @Override
+        public void onClick(View v) {
+
+            storyWriteFragment.onClickStory(mDataSet.get(getAdapterPosition()).getId());
+
+        }
     }
 
     public StoryWriteAdapter(Activity activity, StoryWriteFragment storyWriteFragment, ArrayList<Story> data) {

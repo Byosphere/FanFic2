@@ -60,8 +60,14 @@ Donec blandit orci lectus, et finibus tellus interdum non. Etiam rhoncus nunc to
     <string name="title_activity_edit_story">EditStoryActivity</string>
     <string name="new_story_titre">Titre</string>
     <string name="reference">Univers de référence</string>
-    <string name="new_page">Rédiger la première page</string>
+    <string name="new_page">Nouvelle page</string>
     <string name="premiere_page">Première page</string>
     <string name="action_post">Poster la première page</string>
+    <string name="follow">Histoire ajoutée aux lectures</string>
+    <string name="unFollow">Histoire retirée des lectures</string>
+    <string name="title_activity_story_list_pages">StoryListPages</string>
+    <string name="title_activity_new_page">Ajouter une nouvelle page</string>
+    <string name="enregistrer">Enregistrement de la page...</string>
+    <string name="profil_stories">FanFics</string>
 
 </resources>

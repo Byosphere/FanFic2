@@ -1,5 +1,8 @@
 package com.byos.yohann.fanfic;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -63,13 +66,16 @@ public class JsonApiToData {
             for (int i = 0; i< jsonFollowed.length(); i++) {
 
                 JSONObject storyJson = jsonFollowed.getJSONObject(i);
-                data.add(new Story(
+                Story story = new Story(
                         storyJson.getInt("id"),
                         storyJson.getInt("nbPages"),
                         storyJson.getString("titre"),
+                        storyJson.getInt("user_id"),
                         storyJson.getString("author"),
                         0,
-                        storyJson.getString("reference")));
+                        storyJson.getString("reference"));
+                story.setFollowed(storyJson.getBoolean("followed"));
+                data.add(story);
 
             }
 
@@ -97,6 +103,7 @@ public class JsonApiToData {
                         storyJson.getInt("id"),
                         storyJson.getInt("nbPages"),
                         storyJson.getString("titre"),
+                        storyJson.getInt("user_id"),
                         storyJson.getString("author"),
                         storyJson.getJSONObject("pivot").getInt("pageActuelle"),
                         storyJson.getString("reference")));
@@ -133,4 +140,51 @@ public class JsonApiToData {
         return listePage;
     }
 
+
+
+    public static ArrayList<Story> getExploreStories(String json, Activity activity) {
+
+        SharedPreferences sharedPreferences = activity.getSharedPreferences(MainActivity.USERFILE, Context.MODE_PRIVATE);
+        int userId = sharedPreferences.getInt(MainActivity.USERID, 0);
+        ArrayList<Story> data = new ArrayList<Story>();
+        try {
+
+            JSONArray tabRaw = new JSONObject(json).getJSONArray("stories");
+            for (int i= 0; i<tabRaw.length(); i++) {
+
+                JSONObject storyJson = (JSONObject) tabRaw.get(i);
+                JSONArray tabLecteurs = storyJson.getJSONArray("lecteurs");
+
+                boolean isFollowing = false;
+
+                for (int j=0; j<tabLecteurs.length(); j++) {
+                    JSONObject user = tabLecteurs.getJSONObject(j);
+                    if(user.getInt("id") == userId) {
+
+                        isFollowing = true;
+                        break;
+                    }
+
+                }
+
+                Story story = new Story(
+                        storyJson.getInt("id"),
+                        storyJson.getInt("nbPages"),
+                        storyJson.getString("titre"),
+                        storyJson.getInt("user_id"),
+                        storyJson.getString("author"),
+                        0,
+                        storyJson.getString("reference"));
+                story.setFollowed(isFollowing);
+                data.add(story);
+            }
+
+
+        } catch (Exception e) {
+
+
+        }
+        return data;
+
+    }
 }

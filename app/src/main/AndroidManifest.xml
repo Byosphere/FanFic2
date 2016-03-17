@@ -42,7 +42,12 @@
         <activity
             android:name=".EditStoryActivity"
             android:label="@string/title_activity_edit_story"
-            android:parentActivityName=".MainActivity"></activity>
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".NewPageActivity"
+            android:label="@string/title_activity_new_page"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

@@ -7,7 +7,7 @@
     android:focusable="true"
     android:clickable="true"
     android:background="?android:attr/selectableItemBackground"
-    android:id="@+id/explore_row"
+    android:id="@+id/profile_row"
     android:layout_centerVertical="true"
     >
 
@@ -22,42 +22,32 @@
         android:layout_alignParentStart="true" />
 
     <TextView
-        android:id="@+id/titre_explore"
+        android:id="@+id/titre_profile"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
         android:layout_marginLeft="10dp"
-        android:layout_marginBottom="10dp"
         android:textSize="8pt"
         tools:text="Titre"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/toggle_fav"
         android:maxLines="1"
-        android:ellipsize="end"/>
+        android:ellipsize="end"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/toggle_fav" />
 
     <TextView
-        android:id="@+id/pages_explore"
+        android:id="@+id/pages_profile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@android:color/darker_gray"
         tools:text="5 pages"
-        android:layout_below="@+id/reference_explore"
+        android:layout_below="@+id/reference_profile"
         android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:id="@+id/auteur_explore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/holo_blue_light"
-        tools:text="auteur"
-        android:layout_below="@+id/reference_explore"
-        android:layout_alignStart="@+id/titre_explore" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Text"
-        android:id="@+id/reference_explore"
+        android:id="@+id/reference_profile"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:background="@drawable/tag_reference"

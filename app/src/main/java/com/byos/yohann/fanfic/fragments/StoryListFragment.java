@@ -60,6 +60,7 @@ public class StoryListFragment extends Fragment {
     protected StoryManagerTask storyManagerTask;
     protected Story currentStory;
     protected TextView noContent;
+    protected ProgressBar loaderStory;
 
     public StoryListFragment() {
         // Required empty public constructor
@@ -89,14 +90,13 @@ public class StoryListFragment extends Fragment {
         rootView.setTag(TAG);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list_view_story);
         noContent = (TextView) rootView.findViewById(R.id.no_content);
+        loaderStory = (ProgressBar) rootView.findViewById(R.id.loader_story_list);
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getString(R.string.app_name));
         mRecyclerView.setAdapter(storyAdapter);
-        if (savedInstanceState == null) {
 
-            ProgressBar loader = (ProgressBar) rootView.findViewById(R.id.loader_story_list);
-            loader.setVisibility(View.VISIBLE);
-        }
+        if (savedInstanceState == null)
+            loaderStory.setVisibility(View.VISIBLE);
 
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -127,7 +127,7 @@ public class StoryListFragment extends Fragment {
 
         currentStory = story;
         storyManagerTask = new StoryManagerTask();
-        storyManagerTask.execute(StoryManagerTask.DELETE_STORY_FOLLOWED, story.getId()+"");
+        storyManagerTask.execute(StoryManagerTask.DELETE_STORY_FOLLOWED, story.getId() + "");
 
     }
 
@@ -135,6 +135,14 @@ public class StoryListFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
 
         outState.putParcelableArrayList(TAG, data);
+    }
+
+    public void showAuthor(int userId, String username) {
+
+        Fragment f = ProfileFragment.newInstance(userId, username);
+        ((MainActivity) getActivity()).setNotFocusMenu();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, f).commit();
+
     }
 
     public class StoryManagerTask extends AsyncTask<String, Void, HashMap<String, String>> {
@@ -252,10 +260,10 @@ public class StoryListFragment extends Fragment {
 
                 noContent.setText(getString(R.string.no_internet));
                 noContent.setVisibility(View.VISIBLE);
-                (getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
+                loaderStory.setVisibility(View.INVISIBLE);
                 return;
             }
-            (getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
+            loaderStory.setVisibility(View.INVISIBLE);
             if(result.containsKey(GET_USER_FOLLOWED)) {
 
                 ArrayList<Story> data = JsonApiToData.getFollowedStories(result.get(GET_USER_FOLLOWED));
@@ -298,7 +306,7 @@ public class StoryListFragment extends Fragment {
         protected void onCancelled() {
 
             storyManagerTask = null;
-            (getActivity().findViewById(R.id.loader_story_list)).setVisibility(View.INVISIBLE);
+            loaderStory.setVisibility(View.INVISIBLE);
         }
     }
     // --------------

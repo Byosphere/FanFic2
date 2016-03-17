@@ -22,7 +22,7 @@
 
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/list_view_story"
+        android:id="@+id/list_view_explore"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/subtitle"
@@ -32,8 +32,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_content"
-        android:id="@+id/no_content"
+        android:text="@string/no_internet"
+        android:id="@+id/no_content_explore"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:visibility="invisible"/>
@@ -41,7 +41,7 @@
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/loader_story_list"
+        android:id="@+id/loader_explore"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:visibility="invisible"/>
